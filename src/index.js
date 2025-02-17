@@ -57,9 +57,14 @@ app.get('*', (req, res) => {
 });
 console.log('🚀 Iniciando servidor...');
 // Iniciar el servidor
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Servidor en ejecución en http://0.0.0.0:${PORT}`);
-}).on('error', (err) => {
-  console.error('Error al iniciar el servidor:', err);
-});
+if (process.env.NODE_ENV === 'development') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor en ejecución en http://0.0.0.0:${PORT}`);
+  }).on('error', (err) => {
+    console.error('Error al iniciar el servidor:', err);
+  });
+} else {
+  // En producción, exportamos la app para Passenger
+  module.exports = app;
+}
