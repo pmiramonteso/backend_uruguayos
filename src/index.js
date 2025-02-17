@@ -21,7 +21,7 @@ const app = express();
 app.use(cors({
   origin: [
     'https://uruguayosenespanya.com',
-    'https://uruguayosenespanya.com/backend',
+    'http://uruguayosenespanya.com',
     'http://localhost:4200',
     'https://localhost:4200'
   ],
@@ -42,7 +42,7 @@ app.use(express.urlencoded({ extended: true })); // Para analizar datos de formu
 })();
 
 app.use('/assets/img', express.static(path.join(__dirname, '/uploads')));
-app.use(express.static(path.resolve(__dirname, '../../public_html')));
+app.use(express.static(path.resolve(__dirname)));
 
 // Configurar rutas
 app.use('/auth', authRoutes);
@@ -54,7 +54,7 @@ app.use('/api/posts', blogRoutes);
 app.use('/api/graficos', graficoRoutes);
 
 app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../../public_html', 'index.html'));
+  res.sendFile(path.resolve(__dirname, 'index.html'));
 });
 // Iniciar el servidor
 const PORT = process.env.PORT || 3000;
