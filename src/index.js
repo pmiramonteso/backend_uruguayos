@@ -55,6 +55,7 @@ app.use('/api/graficos', graficoRoutes);
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, '../../public_html/index.html'));
 });
+console.log('🚀 Iniciando servidor...');
 // Iniciar el servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
