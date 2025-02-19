@@ -39,8 +39,14 @@ app.use(express.urlencoded({ extended: true })); // Para analizar datos de formu
 (async () => {
   await testConnection();
 })();
+const uploadsPath = path.join(__dirname, '/uploads');
+console.log('Ruta de uploads:', uploadsPath);
 
-app.use('/assets/img', express.static(path.join(__dirname, '/uploads')));
+app.use('/assets/img', (req, res, next) => {
+  console.log('Solicitando imagen:', req.url);
+  console.log('Buscando en:', path.join(uploadsPath, req.url));
+  next();
+}, express.static(uploadsPath));
 app.use(express.static(path.resolve(__dirname, '../../public_html')));
 
 // Configurar rutas
