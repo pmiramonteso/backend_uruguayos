@@ -1,0 +1,4 @@
+---
+deployment:
+  tasks:
+    - /bin/bash /home/i308181/repositories/backend_production/deploy.sh backend_uruguayos
