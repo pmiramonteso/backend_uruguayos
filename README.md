@@ -27,7 +27,7 @@ El backend del proyecto está desarrollado con Node.js y Express, permitiendo ma
   - Express.js  
   - MySQL  
   - JWT para autenticación  
-  - Nodemon para el desarrollo  
+  - `node --watch` para el desarrollo (`npm run dev`)  
 
 📋 **Requisitos**  
 1. **Node.js** y **npm** instalados en tu sistema. Puedes descargarlos desde [nodejs.org](https://nodejs.org/).  
