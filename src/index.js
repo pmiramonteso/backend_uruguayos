@@ -14,7 +14,7 @@ const graficoRoutes = require('./routes/graficoRoutes');
 const { authenticateToken } = require('./middlewares/authenticateToken.js');
 const { testConnection } = require('./db');
 
-dotenv.config();
+dotenv.config({ quiet: true });
 const app = express();
 
 // Configura el middleware CORS para que peuda recibir solicitudes de POST, PUT, DELETE, UPDATE, etc.
@@ -58,7 +58,7 @@ app.use('/api/eventos', eventosRoutes);
 app.use('/api/posts', blogRoutes);
 app.use('/api/graficos', graficoRoutes);
 
-app.get('*', (req, res) => {
+app.get('/{*splat}', (req, res) => {
   res.sendFile(path.resolve(__dirname, '../../public_html/index.html'));
 });
 console.log('🚀 Iniciando servidor...');

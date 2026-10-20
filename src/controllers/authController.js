@@ -5,7 +5,7 @@ const User = require('../models/userModel');
 const RecoveryToken = require('../models/recoveryTokenModel');
 const sendEmail = require("../utils/email/sendEmail");
 const { validationResult } = require('express-validator');
-const { serialize } = require('cookie');
+const { stringifySetCookie } = require('cookie');
 // Creación de funciones personalizadas
 const { esPar, contraseniasCoinciden } = require('../utils/utils');
 
@@ -40,7 +40,9 @@ const registro = async (req, res) => {
       // Generar un token de acceso y lo guardo en un token seguro (httpOnly)
       const accessToken = jwt.sign({ id_user: newUser.id_user, nombre: newUser.nombre }, process.env.JWT_SECRET,
       { expiresIn: '2h' });
-      const token = serialize('token', accessToken, {
+      const token = stringifySetCookie({
+        name: 'token',
+        value: accessToken,
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'none',
@@ -259,7 +261,9 @@ const changePassword = async (req, res) => {
   
       // Generar un token de acceso y lo guardo en un token seguro (httpOnly)
       const accessToken = jwt.sign({ id_user: user.id_user, nombre: user.nombre }, process.env.JWT_SECRET);
-      const token_jwt = serialize('token', accessToken, {
+      const token_jwt = stringifySetCookie({
+        name: 'token',
+        value: accessToken,
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'none',
@@ -294,7 +298,9 @@ const logout = async (req, res) => {
     const { cookies } = req;
     const jwt = cookies.token;
   
-    const token = serialize('token', null, {
+    const token = stringifySetCookie({
+      name: 'token',
+      value: '',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'none',
