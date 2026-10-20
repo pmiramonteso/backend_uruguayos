@@ -17,13 +17,16 @@ const { testConnection } = require('./db');
 dotenv.config({ quiet: true });
 const app = express();
 
+// Orígenes permitidos y carpeta del frontend: configurables por entorno (producción/staging).
+// CORS_ORIGINS es una lista separada por comas.
+const corsOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+  : ['https://uruguayosenespanya.com', 'http://localhost:4200', 'https://localhost:4200'];
+const publicDir = process.env.PUBLIC_DIR || path.resolve(__dirname, '../../public_html');
+
 // Configura el middleware CORS para que peuda recibir solicitudes de POST, PUT, DELETE, UPDATE, etc.
 app.use(cors({
-  origin: [
-    'https://uruguayosenespanya.com',
-    'http://localhost:4200',
-    'https://localhost:4200'
-  ],
+  origin: corsOrigins,
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   exposedHeaders: ['Set-Cookie'],
   credentials: true,
@@ -47,7 +50,7 @@ app.use('/assets/img', (req, res, next) => {
   console.log('Buscando en:', path.join(uploadsPath, req.url));
   next();
 }, express.static(uploadsPath));
-app.use(express.static(path.resolve(__dirname, '../../public_html')));
+app.use(express.static(publicDir));
 
 // Configurar rutas
 app.use('/auth', authRoutes);
@@ -59,7 +62,7 @@ app.use('/api/posts', blogRoutes);
 app.use('/api/graficos', graficoRoutes);
 
 app.get('/{*splat}', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../../public_html/index.html'));
+  res.sendFile(path.join(publicDir, 'index.html'));
 });
 console.log('🚀 Iniciando servidor...');
 // Iniciar el servidor
