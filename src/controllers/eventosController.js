@@ -55,19 +55,20 @@ const getEventoById = async (req, res) => {
         message: 'Evento no encontrado'
       });
     }
-    const eventosConFechasFormateadas = evento.map(evento => ({
+    // findByPk devuelve un único evento, no un array
+    const eventoConFechasFormateadas = {
       ...evento.toJSON(),
       fecha: moment(evento.fecha).format('YYYY-MM-DD'),
       fecha_fin: evento.fecha_fin ? moment(evento.fecha_fin).format('YYYY-MM-DD') : null,
       hora_inicio: evento.hora_inicio ? moment(evento.hora_inicio, 'HH:mm:ss').format('HH:mm') : null,
       hora_fin: evento.hora_fin ? moment(evento.hora_fin, 'HH:mm:ss').format('HH:mm') : null
-    }));
-    
+    };
+
     // Enviar una respuesta al cliente
     res.status(200).json({
       code: 1,
       message: 'Detalle del Evento',
-      data: eventosConFechasFormateadas
+      data: eventoConFechasFormateadas
     });
   } catch (error) {
     console.error(error);

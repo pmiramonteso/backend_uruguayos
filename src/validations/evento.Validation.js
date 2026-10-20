@@ -42,8 +42,8 @@ const eventoValidator = [
         .optional()
         .isString()
         .withMessage("El color debe ser una cadena de texto")
-        .isIn(['pastelVioleta', 'pastelIndig', 'pastelBlue', 'pastelGreen', 'pastelYellow', 'pastelOrange', 'pastelRed'])
-        .withMessage("El color debe ser uno de los siguientes: 'pastelVioleta', 'pastelIndig', 'pastelBlue', 'pastelGreen', 'pastelYellow', 'pastelOrange', 'pastelRed'"),
+        .isIn(['pastelVioleta', 'pastelIndigo', 'pastelBlue', 'pastelGreen', 'pastelYellow', 'pastelOrange', 'pastelRed'])
+        .withMessage("El color debe ser uno de los siguientes: 'pastelVioleta', 'pastelIndigo','pastelBlue', 'pastelGreen', 'pastelYellow', 'pastelOrange', 'pastelRed'"),
 
     body("entrada")
         .exists()
