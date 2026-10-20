@@ -1,8 +1,12 @@
+const path = require('path');
+const dotenv = require('dotenv');
+// Primero el .env (desde la carpeta de la app, no desde el directorio actual):
+// algunos módulos leen process.env al cargarse
+dotenv.config({ path: path.join(__dirname, '..', '.env'), quiet: true });
+
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
-const dotenv = require('dotenv');
-const path = require('path');
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -14,7 +18,6 @@ const graficoRoutes = require('./routes/graficoRoutes');
 const { authenticateToken } = require('./middlewares/authenticateToken.js');
 const { testConnection } = require('./db');
 
-dotenv.config({ quiet: true });
 const app = express();
 
 // Orígenes permitidos y carpeta del frontend: configurables por entorno (producción/staging).
