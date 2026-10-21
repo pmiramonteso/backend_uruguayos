@@ -2,7 +2,7 @@ const User = require('../models/userModel.js');
 const { validationResult } = require('express-validator');
 const fs = require('fs');
 const path = require('path');
-//https://www.bezkoder.com/node-js-express-file-upload/
+
 
 const getUser = async (req, res) => {
   try {
@@ -40,10 +40,19 @@ const getUser = async (req, res) => {
   }
 };
 
+// Carpeta donde multer guarda las fotos (middlewares/upload.js)
+const uploadsDir = path.join(__dirname, '..', 'uploads');
+
+// Borra una foto subida; basename evita salir de la carpeta de uploads
+const borrarFoto = (photo) => {
+  if (!photo) return;
+  fs.unlink(path.join(uploadsDir, path.basename(photo)), (err) => {
+    if (err && err.code !== 'ENOENT') console.error('Error al borrar la foto', photo, err.message);
+  });
+};
+
 const uploadPhoto = async (req, res) => {
   try {
-    const rutaArchivo = "./uploads/"; // Ruta completa al archivo que deseas eliminar
-
     if (req.file == undefined) {
       return res.status(400).json({
         code: -101,
@@ -51,57 +60,99 @@ const uploadPhoto = async (req, res) => {
       });
     }
 
-    // Si el usuario tiene foto, se la eliminamos
-    if (req.user.photo != null) {
-      console.log("Ruta:" + rutaArchivo + req.user.photo);
-      fs.access(rutaArchivo + req.user.photo, fs.constants.F_OK, (err) => {
-        if (err) {
-          console.log('El archivo no existe o no tienes acceso');
-        } else {
-          // Eliminar el archivo
-          fs.unlink(rutaArchivo + req.user.photo, (err) => {
-            if (err) {
-              console.error('Error al eliminar el archivo', err);
-              return res.status(500).json({
-                code: -103,
-                message: 'Error al eliminar el archivo',
-                error: err
-              });
-            }
-            console.log('El archivo ha sido eliminado correctamente.');
-          });
-        }
-      });
-    } else {
-      console.log("El usuario no tiene foto, la seteo en la DB");
-    }
+    // La foto anterior ya no se usa
+    borrarFoto(req.user.photo);
 
-    // Actualizo la imagen del usuario
-    console.log("Guardo la imagen: " + req.file.filename + " en el id de usuario: " + req.user.id_user);
     await User.update({ photo: req.file.filename }, { where: { id_user: req.user.id_user } });
-    
-    const photoUrl = `http://localhost:3000/assets/img/${req.file.filename}`;
+
+    // El frontend guarda el nombre del archivo y construye la URL con su endpoint
     return res.status(200).json({
       code: 1,
-      message: "Uploaded the file successfully: " + req.file.originalname,
-      photoUrl
+      message: 'Foto actualizada',
+      photo: req.file.filename
     });
 
   } catch (err) {
-    if (err.code == "LIMIT_FILE_SIZE") {
-      return res.status(500).send({
-        message: "File size cannot be larger than 2MB!",
-      });
+    console.error(err);
+    res.status(500).json({
+      code: -100,
+      message: 'No se ha podido guardar la foto'
+    });
+  }
+};
+
+// --- Administración de usuarios (solo admin) ---
+
+const ATRIBUTOS_PUBLICOS = ['id_user', 'nombre', 'apellidos', 'email', 'roles', 'photo', 'created_at'];
+
+const listarUsuarios = async (req, res) => {
+  try {
+    const usuarios = await User.findAll({ attributes: ATRIBUTOS_PUBLICOS, order: [['created_at', 'DESC']] });
+    res.status(200).json({ code: 1, message: 'Usuarios', data: usuarios });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ code: -100, message: 'Ocurrió un error al obtener los usuarios' });
+  }
+};
+
+const cambiarRol = async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    res.status(500).send({
-      message: `Could not upload the file: ${req.file.originalname}. ${err}`,
-      error: `${err}`
-    });
+    const id = Number(req.params.id);
+    // Un admin no puede quitarse el rol a sí mismo: podría quedarse la web sin ningún admin
+    if (id === req.user.id_user) {
+      return res.status(400).json({ code: -2, message: 'No puedes cambiar tu propio rol' });
+    }
+
+    const usuario = await User.findByPk(id);
+    if (!usuario) {
+      return res.status(404).json({ code: -10, message: 'Usuario no encontrado' });
+    }
+
+    usuario.roles = req.body.roles;
+    await usuario.save();
+    res.status(200).json({ code: 1, message: 'Rol actualizado', data: { id_user: usuario.id_user, roles: usuario.roles } });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ code: -100, message: 'Ocurrió un error al cambiar el rol' });
+  }
+};
+
+const eliminarUsuario = async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const id = Number(req.params.id);
+    if (id === req.user.id_user) {
+      return res.status(400).json({ code: -2, message: 'No puedes eliminar tu propia cuenta desde aquí' });
+    }
+
+    const usuario = await User.findByPk(id);
+    if (!usuario) {
+      return res.status(404).json({ code: -10, message: 'Usuario no encontrado' });
+    }
+
+    // Los tokens de recuperación se borran en cascada (clave foránea)
+    await usuario.destroy();
+    borrarFoto(usuario.photo);
+    res.status(200).json({ code: 1, message: 'Usuario eliminado' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ code: -100, message: 'Ocurrió un error al eliminar el usuario' });
   }
 };
 
 module.exports = {
   getUser,
-  uploadPhoto
+  uploadPhoto,
+  listarUsuarios,
+  cambiarRol,
+  eliminarUsuario
 };

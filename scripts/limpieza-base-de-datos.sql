@@ -1,3 +1,5 @@
+-- Limpieza de la base de datos tras quitar sequelize.sync({ alter: true }).
+--
 -- Borra los índices únicos duplicados que creaba sequelize.sync({ alter: true }) en cada arranque
 -- del backend: email_2 ... email_63 en users y token_2 ... en recoverytokens.
 -- Deja el índice original (email, token), así que el email sigue siendo único.
@@ -33,3 +35,6 @@ SELECT table_name AS tabla, COUNT(DISTINCT index_name) AS indices
 FROM information_schema.statistics
 WHERE table_schema = DATABASE() AND table_name IN ('users', 'recoverytokens')
 GROUP BY table_name;
+
+-- Tabla books: restos del proyecto de ejemplo (dos libros de prueba). Ningún código ni tabla la usa.
+DROP TABLE IF EXISTS `books`;
