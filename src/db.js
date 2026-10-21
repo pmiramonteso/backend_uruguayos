@@ -15,18 +15,19 @@ const sequelize = new Sequelize(
   }
 );
 
+// Las tablas ya existen (proj_uruguayos.sql). Antes se hacía sequelize.sync({ alter: true }) en cada
+// arranque, y eso añadía un índice único duplicado sobre users.email cada vez (llegó a 63 de 64 posibles).
+// Para una base vacía: DB_SYNC=true en el .env crea las tablas que falten, sin modificar las que existen.
 const syncroModel = async () => {
+  if (process.env.DB_SYNC !== 'true') return;
   try {
-    // Sincronizar el modelo con la base de datos (crear la tabla si no existe)
-    // Con "alter: true" se sincronizan las columnas y se crean/eliminan si fuera necesario
-    await sequelize.sync({ alter: true }).then(() => {
-      console.log('Modelos sincronizado con la base de datos');
-    }); 
+    await sequelize.sync();
+    console.log('Tablas creadas (las que faltaban)');
   } catch (error) {
-    console.error('Unable to connect to the database:', error);
+    console.error('Error al crear las tablas:', error);
   }
 };
-  
+
 const testConnection = async () => {
   try {
     await sequelize.authenticate();
