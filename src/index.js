@@ -7,6 +7,7 @@ dotenv.config({ path: path.join(__dirname, '..', '.env'), quiet: true });
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const helmet = require('helmet');
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -19,6 +20,18 @@ const { authenticateToken } = require('./middlewares/authenticateToken.js');
 const { testConnection } = require('./db');
 
 const app = express();
+
+// Detrás del proxy del hosting (LiteSpeed/Passenger): la IP real llega en X-Forwarded-For.
+// Sin esto, el límite de intentos contaría a todo el mundo como una sola IP.
+app.set('trust proxy', 1);
+
+// Cabeceras de seguridad (y quita X-Powered-By). La CSP se deja fuera porque el HTML
+// lo sirve el hosting y carga GTM, Google Fonts y jsDelivr. CORP same-site para que
+// localhost:4200 pueda seguir cargando las imágenes de localhost:3000.
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginResourcePolicy: { policy: 'same-site' },
+}));
 
 // Orígenes permitidos y carpeta del frontend: configurables por entorno (producción/staging).
 // CORS_ORIGINS es una lista separada por comas.
