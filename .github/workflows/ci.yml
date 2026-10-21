@@ -32,6 +32,8 @@ jobs:
       PASSWORD: root
       JWT_SECRET: ci-secret
       BCRYPT_SALT: 4
+      # Base de datos vacía: que el servidor cree las tablas al arrancar
+      DB_SYNC: 'true'
     steps:
       - uses: actions/checkout@v7
 
@@ -49,11 +51,11 @@ jobs:
         run: |
           node src/index.js > server.log 2>&1 &
           for i in $(seq 1 30); do
-            grep -q 'Modelos sincronizado' server.log && break
+            grep -q 'Tablas creadas' server.log && break
             grep -q 'Unable to connect' server.log && { cat server.log; exit 1; }
             sleep 1
           done
-          grep -q 'Modelos sincronizado' server.log || { cat server.log; exit 1; }
+          grep -q 'Tablas creadas' server.log || { cat server.log; exit 1; }
 
       - name: Probar la API
         run: |

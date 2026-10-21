@@ -6,8 +6,8 @@ const path = require('path');
 
 const getUser = async (req, res) => {
   try {
-    console.log("Usuario autenticado en la petición:", req.usuario);
-    if (!req.usuario) {
+    // req.user lo pone authenticateToken
+    if (!req.user) {
       return res.status(401).json({
         code: -200,
         message: "Usuario no autenticado"
