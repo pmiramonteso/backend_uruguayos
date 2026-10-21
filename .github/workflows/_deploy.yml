@@ -27,7 +27,7 @@ jobs:
     env:
       BRANCH: deploy-${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
