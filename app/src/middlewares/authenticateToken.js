@@ -38,8 +38,6 @@ const authenticateToken = (allowedRoles) => async (req, res, next) => {
         ? user.roles.split(',').map(role => role.trim())
         : Array.isArray(user.roles) ? user.roles : [user.roles];
 
-      console.log('Roles de usuario:', userRoles);
-      console.log('Roles permitidos:', allowedRoles);
 
       const hasPermission = allowedRoles.some(role => userRoles.includes(role));
 

@@ -11,7 +11,6 @@ const helmet = require('helmet');
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-const testRoutes = require('./routes/testRoutes');
 const negociosRoutes = require('./routes/negociosRoutes');
 const eventosRoutes = require('./routes/eventoRoutes');
 const blogRoutes = require('./routes/blogRoutes');
@@ -61,17 +60,12 @@ app.use(express.urlencoded({ extended: true })); // Para analizar datos de formu
 const uploadsPath = path.join(__dirname, '/uploads');
 console.log('Ruta de uploads:', uploadsPath);
 
-app.use('/assets/img', (req, res, next) => {
-  console.log('Solicitando imagen:', req.url);
-  console.log('Buscando en:', path.join(uploadsPath, req.url));
-  next();
-}, express.static(uploadsPath));
+app.use('/assets/img', express.static(uploadsPath));
 app.use(express.static(publicDir));
 
 // Configurar rutas
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
-app.use('/test', testRoutes);
 app.use('/api/negocios', negociosRoutes);
 app.use('/api/eventos', eventosRoutes);
 app.use('/api/posts', blogRoutes);
