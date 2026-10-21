@@ -8,13 +8,11 @@ const authenticateToken = (allowedRoles) => async (req, res, next) => {
     // Busca el token en el Header Authorization
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
       accessToken = req.headers.authorization.split(' ')[1];
-      console.log('Token extraído:', accessToken);
     }
 
     // Si no hay token en el header, busca en cookies
     if (!accessToken && req.cookies?.token) {
       accessToken = req.cookies.token;
-      console.log('Token extraído de cookies:', accessToken);
     }
 
     if (!accessToken) {
